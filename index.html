@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YouTube → MP3 Converter</title>
+  <style>
+    body{font-family:sans-serif;max-width:600px;margin:40px auto;padding:0 16px}
+    input,select,button{padding:8px;margin:5px 0;width:100%}
+    button{cursor:pointer;background:#0d6efd;color:#fff;border:none}
+    .result a{color:#0d6efd;text-decoration:none}
+  </style>
+</head>
+<body>
+  <h1>YouTube → MP3</h1>
+  <label>YouTube URL:</label>
+  <input id="url" placeholder="https://www.youtube.com/watch?v=..." />
+  <label>Quality (kbps):</label>
+  <select id="q">
+    <option>128</option>
+    <option selected>192</option>
+    <option>320</option>
+  </select>
+  <button id="btn">Convert</button>
+  <p id="msg" class="result"></p>
+
+  <script>
+    document.getElementById('btn').onclick = async () => {
+      const url = document.getElementById('url').value.trim();
+      const quality = document.getElementById('q').value;
+      const msg = document.getElementById('msg');
+      msg.textContent = "Processing...";
+      try {
+        const res = await fetch('/api/convert', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({url, quality})
+        });
+        const data = await res.json();
+        if(!data.ok) { msg.textContent = 'Error: ' + (data.error || 'failed'); return; }
+        msg.innerHTML = `Done: <a href="${data.url}">Download MP3</a>`;
+      } catch (e) {
+        msg.textContent = 'Request failed';
+      }
+    }
+  </script>
+</body>
+</html>
